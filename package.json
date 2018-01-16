@@ -1,0 +1,36 @@
+{
+  "name": "github-download-directory",
+  "version": "0.0.0",
+  "description": "Download the contents of a given directory from a repository on GitHub.",
+  "repository": "phated/github-download-directory",
+  "author": "Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "bin"
+  ],
+  "bin": {
+    "github-download-directory": "bin/github-download-directory.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "fs-mkdirp-stream": "^1.0.0",
+    "github-content": "^1.0.1",
+    "github-trees": "^0.1.0",
+    "minimist": "^1.2.0"
+  },
+  "keywords": [
+    "github",
+    "fetch",
+    "directories",
+    "files",
+    "docs",
+    "documentation"
+  ]
+}
