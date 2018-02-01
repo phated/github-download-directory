@@ -8,8 +8,8 @@ var ghTree = require('github-trees');
 var GithubContent = require('github-content');
 var mkdirp = require('fs-mkdirp-stream/mkdirp');
 
-function getFiles(owner, repo, paths) {
-  var client = new GithubContent({ owner, repo });
+function getFiles(owner, repo, branch, paths) {
+  var client = new GithubContent({ owner, repo, branch });
 
   // Call with client as `this`
   return promisify(client.files).call(client, paths);
@@ -36,7 +36,7 @@ async function download(owner, repo, directory, options) {
     .filter((node) => node.path.startsWith(directory) && node.type === 'blob')
     .map((node) => node.path);
 
-  var files = await getFiles(owner, repo, paths);
+  var files = await getFiles(owner, repo, options.sha, paths);
 
   await Promise.all(files.map(output));
 }
