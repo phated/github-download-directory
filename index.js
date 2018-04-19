@@ -29,7 +29,7 @@ async function output(file) {
   await writeFile(file.path, file.contents);
 }
 
-async function download(owner, repo, directory, options) {
+async function download(owner, repo, directory, options = {}) {
   var { tree } = await ghTree(owner, repo, { recursive: true, sha: options.sha });
 
   var paths = tree
