@@ -29,16 +29,22 @@ async function output(file) {
   await writeFile(file.path, file.contents);
 }
 
-async function download(owner, repo, directory, options = {}) {
+async function fetchFiles(owner, repo, directory, options = {}) {
   var { tree } = await ghTree(owner, repo, { recursive: true, sha: options.sha });
 
   var paths = tree
     .filter((node) => node.path.startsWith(directory) && node.type === 'blob')
     .map((node) => node.path);
 
-  var files = await getFiles(owner, repo, options.sha, paths);
+  return getFiles(owner, repo, options.sha, paths);
+}
+
+async function download(owner, repo, directory, options = {}) {
+  var files = await fetchFiles(owner, repo, directory, options);
 
   await Promise.all(files.map(output));
 }
 
 module.exports = download;
+module.exports.fetchFiles = fetchFiles;
+module.exports.output = output;
