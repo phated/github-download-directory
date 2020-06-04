@@ -23,7 +23,8 @@
     "fs-mkdirp-stream": "^1.0.0",
     "github-content": "^1.0.1",
     "github-trees": "^0.2.0",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "persistent-cache": "^1.1.1"
   },
   "keywords": [
     "github",

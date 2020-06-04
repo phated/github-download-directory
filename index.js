@@ -3,10 +3,14 @@
 var fs = require('fs');
 var { dirname } = require('path');
 var { promisify } = require('util');
+var persistentCache = require('persistent-cache');
 
 var ghTree = require('github-trees');
 var GithubContent = require('github-content');
 var mkdirp = require('fs-mkdirp-stream/mkdirp');
+
+var ONE_HOUR_IN_MS = 1000 * 3600;
+var cache;
 
 function getFiles(owner, repo, branch, paths) {
   var client = new GithubContent({ owner, repo, branch });
@@ -29,8 +33,28 @@ async function output(file) {
   await writeFile(file.path, file.contents);
 }
 
+async function cacheGet(prop) {
+  const get = promisify(cache.get);
+  return get(prop);
+}
+
+async function cachePut(prop, value) {
+  const put = promisify(cache.put);
+  return put(prop, value);
+}
+
+async function getTree(owner, repo, options) {
+  const cachedTree = await cacheGet('github-tree');
+  if (cachedTree) {
+    return cachedTree
+  }
+  const { tree } = await ghTree(owner, repo, { recursive: true, sha: options.sha || 'master' });
+  await cachePut('github-tree', tree);
+  return tree;
+}
+
 async function fetchFiles(owner, repo, directory, options = {}) {
-  var { tree } = await ghTree(owner, repo, { recursive: true, sha: options.sha });
+  const tree = await getTree(owner, repo, options);
 
   var paths = tree
     .filter((node) => node.path.startsWith(directory) && node.type === 'blob')
@@ -40,8 +64,9 @@ async function fetchFiles(owner, repo, directory, options = {}) {
 }
 
 async function download(owner, repo, directory, options = {}) {
+  const cacheOptions = Object.assign( {'duration': ONE_HOUR_IN_MS}, options.cache);
+  cache = persistentCache(cacheOptions);
   var files = await fetchFiles(owner, repo, directory, options);
-
   await Promise.all(files.map(output));
 }
 
