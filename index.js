@@ -3,8 +3,8 @@
 var fs = require('fs');
 var { dirname } = require('path');
 var { promisify } = require('util');
-var persistentCache = require('persistent-cache');
 
+var Keyv = require('keyv');
 var ghTree = require('github-trees');
 var GithubContent = require('github-content');
 var mkdirp = require('fs-mkdirp-stream/mkdirp');
@@ -12,7 +12,25 @@ var mkdirp = require('fs-mkdirp-stream/mkdirp');
 var ONE_HOUR_IN_MS = 1000 * 3600;
 var cache;
 
+var defaultCacheOpts = {
+  ttl: ONE_HOUR_IN_MS,
+  namespace: 'github-download-directory'
+};
+
+function getCache(opts) {
+  if (!cache) {
+    cache = module.exports.cache = new Keyv(opts);
+  }
+
+  if (opts.store && cache.opts.store !== opts.store) {
+    cache = module.exports.cache = new Keyv(opts);
+  }
+
+  return cache
+}
+
 function getFiles(owner, repo, branch, paths) {
+  // TODO: Should we cache files?
   var client = new GithubContent({ owner, repo, branch });
 
   // Call with client as `this`
@@ -33,28 +51,25 @@ async function output(file) {
   await writeFile(file.path, file.contents);
 }
 
-async function cacheGet(prop) {
-  const get = promisify(cache.get);
-  return get(prop);
-}
+async function getTree(owner, repo, options = {}) {
+  var cacheOpts = Object.assign({}, defaultCacheOpts, options.cache);
+  var cache = getCache(cacheOpts);
 
-async function cachePut(prop, value) {
-  const put = promisify(cache.put);
-  return put(prop, value);
-}
+  var sha = options.sha || 'master';
+  var cacheKey = `${owner}/${repo}#${sha}`;
 
-async function getTree(owner, repo, options) {
-  const cachedTree = await cacheGet('github-tree');
+  var cachedTree = await cache.get(cacheKey);
   if (cachedTree) {
     return cachedTree
   }
-  const { tree } = await ghTree(owner, repo, { recursive: true, sha: options.sha || 'master' });
-  await cachePut('github-tree', tree);
+
+  var { tree = [] } = await ghTree(owner, repo, { recursive: true, sha });
+  await cache.set(cacheKey, tree);
   return tree;
 }
 
 async function fetchFiles(owner, repo, directory, options = {}) {
-  const tree = await getTree(owner, repo, options);
+  var tree = await getTree(owner, repo, options);
 
   var paths = tree
     .filter((node) => node.path.startsWith(directory) && node.type === 'blob')
@@ -64,8 +79,6 @@ async function fetchFiles(owner, repo, directory, options = {}) {
 }
 
 async function download(owner, repo, directory, options = {}) {
-  const cacheOptions = Object.assign( {'duration': ONE_HOUR_IN_MS}, options.cache);
-  cache = persistentCache(cacheOptions);
   var files = await fetchFiles(owner, repo, directory, options);
   await Promise.all(files.map(output));
 }

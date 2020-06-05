@@ -56,6 +56,6 @@ typings/
 
 # dotenv environment variables file
 .env
-.idea/
 
-bin/cache
+# Tests
+test/.cache.json
