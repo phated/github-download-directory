@@ -1,5 +1,6 @@
 'use strict';
 
+var fs = require('fs');
 var expect = require('expect');
 
 var FileCache = require('keyv-file').KeyvFile;
