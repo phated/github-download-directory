@@ -83,11 +83,16 @@ describe('github-download-directory', function() {
     it('can set a custom cache', async function() {
       var filename = 'test/.cache.json';
 
+      var store = new FileCache({ filename });
+
       var files = await gdd.fetchFiles('phated', 'github-download-directory', '', {
         cache: {
-          store: new FileCache({ filename }),
+          store
         }
       });
+
+      await store.save();
+
       var paths = files.map(getPath);
       // Check a few paths
       expect(paths).toContain('index.js');
