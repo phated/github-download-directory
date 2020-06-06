@@ -33,7 +33,7 @@ class Downloader {
 
     this.cache = new Keyv(cacheOpts);
 
-    this._octokit = new Octokit();
+    this._octokit = new Octokit(options.github);
   }
 
   async getTree(owner, repo, options = {}) {

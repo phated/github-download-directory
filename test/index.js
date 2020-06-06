@@ -5,7 +5,7 @@ var expect = require('expect');
 
 var FileCache = require('keyv-file').KeyvFile;
 
-var gdd = require('../');
+var { Downloader } = require('../');
 
 describe('github-download-directory', function() {
 
@@ -20,6 +20,11 @@ describe('github-download-directory', function() {
   describe('fetchFiles', function() {
 
     this.timeout(0);
+
+    // Not testing the singleton so we can auth
+    const downloader = new Downloader({
+      github: { auth: process.env.TEST_TOKEN }
+    });
 
     it('fetchs the files', async function() {
       var files = await gdd.fetchFiles('phated', 'github-download-directory', '');
@@ -82,6 +87,7 @@ describe('github-download-directory', function() {
 
       var downloader = new gdd.Downloader({
         cache: { store },
+        github: { auth: process.env.TEST_TOKEN }
       });
 
       var files = await downloader.fetchFiles('phated', 'github-download-directory', '');
