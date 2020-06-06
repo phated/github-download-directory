@@ -31,6 +31,13 @@ describe('github-download-directory', function() {
       expect(paths).toContain('package.json');
     });
 
+    it('filters the directory', async function() {
+      var files = await gdd.fetchFiles('phated', 'github-download-directory', 'bin');
+      var paths = files.map(getPath);
+      // Just the bin file
+      expect(paths).toEqual(['bin/github-download-directory.js']);
+    });
+
     it('has a cache from a previous run', async function() {
       expect(gdd.cache).toBeDefined();
     });
@@ -64,34 +71,20 @@ describe('github-download-directory', function() {
       expect(paths).toContain('README.md');
       expect(paths).toContain('package.json');
     });
+  });
 
-    it('can reset cache', async function() {
-      gdd.cache.clear();
-      var key = 'phated/github-download-directory#master';
-      var cachedTree = await gdd.cache.get(key);
+  describe('Downloader', function() {
 
-      expect(cachedTree).toBeUndefined();
-    })
-
-    it('filters the directory', async function() {
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', 'bin');
-      var paths = files.map(getPath);
-      // Just the bin file
-      expect(paths).toEqual(['bin/github-download-directory.js']);
-    });
-
-    it('can set a custom cache', async function() {
+    it('allows you to construct an new instance with custom cache', async function() {
       var filename = 'test/.cache.json';
 
       var store = new FileCache({ filename });
 
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', '', {
-        cache: {
-          store
-        }
+      var downloader = new gdd.Downloader({
+        cache: { store },
       });
 
-      await store.save();
+      var files = await downloader.fetchFiles('phated', 'github-download-directory', '');
 
       var paths = files.map(getPath);
       // Check a few paths
@@ -100,7 +93,7 @@ describe('github-download-directory', function() {
       expect(paths).toContain('README.md');
       expect(paths).toContain('package.json');
       // Make sure the file cache exists
-      expect(fs.existsSync(filename)).toEqual(true)
+      expect(fs.existsSync(filename)).toEqual(true);
     });
   });
 

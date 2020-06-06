@@ -4,7 +4,7 @@
 
 var minimist = require('minimist');
 
-var download = require('../');
+var gdd = require('../');
 
 var args = minimist(process.argv.slice(2));
 
@@ -20,7 +20,7 @@ function cliError() {
 
 async function exec() {
   try {
-    await download(owner, repo, directory);
+    await gdd.download(owner, repo, directory);
     console.log(`Successfully created "${directory}" in "${process.cwd()}".`);
   } catch(err) {
     cliError(`An error occurred while downloading:`, err);
@@ -47,10 +47,6 @@ if (ownerAndRepo.includes('/')) {
 
   if (!repo) {
     cliError(`It looks like you specified an empty :repo in :owner/:repo. You gave "${ownerAndRepo}".`)
-  }
-
-  if (!directory) {
-    cliError(`The second argument must be a directory (like "docs") but it was empty.`);
   }
 
   exec();
