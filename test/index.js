@@ -27,7 +27,7 @@ describe('github-download-directory', function() {
     });
 
     it('fetchs the files', async function() {
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', '');
+      var files = await downloader.fetchFiles('phated', 'github-download-directory', '');
       var paths = files.map(getPath);
       // Check a few paths
       expect(paths).toContain('index.js');
@@ -37,36 +37,32 @@ describe('github-download-directory', function() {
     });
 
     it('filters the directory', async function() {
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', 'bin');
+      var files = await downloader.fetchFiles('phated', 'github-download-directory', 'bin');
       var paths = files.map(getPath);
       // Just the bin file
       expect(paths).toEqual(['bin/github-download-directory.js']);
     });
 
-    it('has a cache from a previous run', async function() {
-      expect(gdd.cache).toBeDefined();
-    });
-
     it('uses the cache values if available', async function() {
       var key = 'phated/github-download-directory#master';
-      var cachedTree = await gdd.cache.get(key);
-      await gdd.cache.set(key, cachedTree.filter(onlyIndex));
+      var cachedTree = await downloader.cache.get(key);
+      await downloader.cache.set(key, cachedTree.filter(onlyIndex));
 
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', '');
+      var files = await downloader.fetchFiles('phated', 'github-download-directory', '');
       var paths = files.map(getPath);
       // Check it only contains index.js, which we set
       expect(paths).toEqual(['index.js']);
     });
 
     it('reuses the cache between runs', async function() {
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', '');
+      var files = await downloader.fetchFiles('phated', 'github-download-directory', '');
       var paths = files.map(getPath);
       // Check it only contains index.js, which we set
       expect(paths).toEqual(['index.js']);
     });
 
     it('uses cache keys that include the SHA', async function() {
-      var files = await gdd.fetchFiles('phated', 'github-download-directory', '', {
+      var files = await downloader.fetchFiles('phated', 'github-download-directory', '', {
         sha: '773c2f0f26fffeaecc1651102da1fd18098309c7'
       });
       var paths = files.map(getPath);
@@ -85,7 +81,7 @@ describe('github-download-directory', function() {
 
       var store = new FileCache({ filename });
 
-      var downloader = new gdd.Downloader({
+      var downloader = new Downloader({
         cache: { store },
         github: { auth: process.env.TEST_TOKEN }
       });
