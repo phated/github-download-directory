@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-var fs = require('fs');
-var { dirname } = require('path');
-var { promisify } = require('util');
+var fs = require("fs");
+var { dirname } = require("path");
+var { promisify } = require("util");
 
-var Keyv = require('keyv');
-var { Octokit } = require('@octokit/rest');
+var Keyv = require("keyv");
+var { Octokit } = require("@octokit/rest");
 
 var mkdir = promisify(fs.mkdir);
 var writeFile = promisify(fs.writeFile);
@@ -14,7 +14,7 @@ var ONE_HOUR_IN_MS = 1000 * 3600;
 
 var defaultCacheOpts = {
   ttl: ONE_HOUR_IN_MS,
-  namespace: 'github-download-directory'
+  namespace: "github-download-directory",
 };
 
 async function createDirectories(filepath) {
@@ -37,24 +37,26 @@ class Downloader {
   }
 
   async getTree(owner, repo, options = {}) {
-    var sha = options.sha || 'master';
+    var sha = options.sha || "master";
     var cacheKey = `${owner}/${repo}#${sha}`;
 
     var cachedTree = await this.cache.get(cacheKey);
     if (cachedTree) {
-      return cachedTree
+      return cachedTree;
     }
 
-    var { data: { tree } } = await this._octokit.git.getTree({
+    var {
+      data: { tree },
+    } = await this._octokit.git.getTree({
       owner,
       repo,
       tree_sha: sha,
-      recursive: true
+      recursive: true,
     });
 
     await this.cache.set(cacheKey, tree);
 
-    if (typeof this.cache.save === 'function') {
+    if (typeof this.cache.save === "function") {
       await this.cache.save();
     }
 
@@ -65,9 +67,13 @@ class Downloader {
     var tree = await this.getTree(owner, repo, options);
 
     var files = tree
-      .filter((node) => node.path.startsWith(directory) && node.type === 'blob')
+      .filter((node) => node.path.startsWith(directory) && node.type === "blob")
       .map(async (node) => {
-        var { data } = await this._octokit.git.getBlob({ owner, repo, file_sha: node.sha });
+        var { data } = await this._octokit.git.getBlob({
+          owner,
+          repo,
+          file_sha: node.sha,
+        });
         return {
           path: node.path,
           contents: Buffer.from(data.content, data.encoding),
