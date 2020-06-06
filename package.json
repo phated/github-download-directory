@@ -32,6 +32,9 @@
     "mocha": "^7.2.0",
     "nyc": "^15.1.0"
   },
+  "prettier": {
+    "singleQuote": true
+  },
   "keywords": [
     "github",
     "fetch",
