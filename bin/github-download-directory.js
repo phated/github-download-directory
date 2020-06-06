@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-"use strict";
+'use strict';
 
-var minimist = require("minimist");
+var minimist = require('minimist');
 
-var gdd = require("../");
+var gdd = require('../');
 
 var args = minimist(process.argv.slice(2));
 
-var ownerAndRepo = args._[0] || "";
-var directory = args._[1] || "";
+var ownerAndRepo = args._[0] || '';
+var directory = args._[1] || '';
 var owner;
 var repo;
 
@@ -33,8 +33,8 @@ if (!ownerAndRepo) {
   );
 }
 
-if (ownerAndRepo.includes("/")) {
-  var split = ownerAndRepo.split("/");
+if (ownerAndRepo.includes('/')) {
+  var split = ownerAndRepo.split('/');
 
   if (split.length > 2) {
     cliError(

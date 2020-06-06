@@ -21,6 +21,7 @@ downloader.download('gulpjs', 'gulp', 'docs').then(console.log, console.error);
 ```
 
 You can also construct a downloader instance:
+
 ```js
 var { Downloader } = require('github-download-directory');
 
@@ -30,8 +31,8 @@ var store = new KeyvFile();
 
 var custom = new Downloader({
   cache: { store },
-  github: { auth: 'SOME_AUTH_TOKEN' }
-})
+  github: { auth: 'SOME_AUTH_TOKEN' },
+});
 
 custom.download('gulpjs', 'gulp', 'docs').then(console.log, console.error);
 ```
