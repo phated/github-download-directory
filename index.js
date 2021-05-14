@@ -37,7 +37,7 @@ class Downloader {
   }
 
   async getTree(owner, repo, options = {}) {
-    var sha = options.sha || 'master';
+    var sha = options.sha || 'main';
     var cacheKey = `${owner}/${repo}#${sha}`;
 
     var cachedTree = await this.cache.get(cacheKey);
