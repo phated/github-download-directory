@@ -37,9 +37,7 @@ class Downloader {
   }
 
   async recurseTree(owner, repo, directory, options = {}) {
-    var {
-      data
-    } = await this._octokit.repos.getContent({
+    var { data } = await this._octokit.repos.getContent({
       owner,
       repo,
       ref: options.sha,
