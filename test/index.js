@@ -50,7 +50,7 @@ describe('github-download-directory', function () {
     });
 
     it('uses the cache values if available', async function () {
-      var key = 'phated/github-download-directory#master';
+      var key = 'phated/github-download-directory';
       var cachedTree = await downloader.cache.get(key);
       await downloader.cache.set(key, cachedTree.filter(onlyIndex));
 

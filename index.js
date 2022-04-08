@@ -36,23 +36,40 @@ class Downloader {
     this._octokit = new Octokit(options.github);
   }
 
-  async getTree(owner, repo, options = {}) {
-    var sha = options.sha || 'master';
-    var cacheKey = `${owner}/${repo}#${sha}`;
+  async recurseTree(owner, repo, directory, options = {}) {
+    var {
+      data
+    } = await this._octokit.repos.getContent({
+      owner,
+      repo,
+      ref: options.sha,
+      path: directory,
+    });
+
+    var recurseDirs = data.map((node) => {
+      if (node.type === 'dir') {
+        return this.recurseTree(owner, repo, node.path, options);
+      }
+      return {
+        path: node.path,
+        type: node.type,
+        sha: node.sha,
+      };
+    });
+
+    return Promise.all(recurseDirs).then((nodes) => nodes.flat());
+  }
+
+  async getTree(owner, repo, directory, options = {}) {
+    var sha = options.sha;
+    var cacheKey = sha ? `${owner}/${repo}#${sha}` : `${owner}/${repo}`;
 
     var cachedTree = await this.cache.get(cacheKey);
     if (cachedTree) {
       return cachedTree;
     }
 
-    var {
-      data: { tree },
-    } = await this._octokit.git.getTree({
-      owner,
-      repo,
-      tree_sha: sha,
-      recursive: true,
-    });
+    var tree = await this.recurseTree(owner, repo, directory, options);
 
     await this.cache.set(cacheKey, tree);
 
@@ -64,10 +81,10 @@ class Downloader {
   }
 
   async fetchFiles(owner, repo, directory, options = {}) {
-    var tree = await this.getTree(owner, repo, options);
+    var tree = await this.getTree(owner, repo, directory, options);
 
     var files = tree
-      .filter((node) => node.path.startsWith(directory) && node.type === 'blob')
+      .filter((node) => node.path.startsWith(directory) && node.type === 'file')
       .map(async (node) => {
         var { data } = await this._octokit.git.getBlob({
           owner,
