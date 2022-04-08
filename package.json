@@ -6,7 +6,7 @@
   "author": "Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)",
   "license": "MIT",
   "engines": {
-    "node": ">=10.13.0"
+    "node": ">=12.0.0"
   },
   "main": "index.js",
   "files": [
