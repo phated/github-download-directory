@@ -34,8 +34,6 @@ class Downloader {
     this.cache = new Keyv(cacheOpts);
 
     this._octokit = new Octokit(options.github);
-
-    // this._files = new Map();
   }
 
   async recurseTree(owner, repo, directory, options = {}) {
