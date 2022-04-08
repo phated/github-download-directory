@@ -1,6 +1,6 @@
 {
   "name": "github-download-directory",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Download the contents of a given directory from a repository on GitHub.",
   "repository": "phated/github-download-directory",
   "author": "Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)",
