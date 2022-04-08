@@ -2,7 +2,7 @@
 
 Download the contents of a given directory from a repository on GitHub.
 
-Only works in node 10.13+
+Only works in node 12+
 
 ## Usage
 
